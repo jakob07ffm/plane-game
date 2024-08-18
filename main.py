@@ -6,7 +6,7 @@ pygame.init()
 
 WIDTH, HEIGHT = 800, 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Ultimate Plane Game")
+pygame.display.set_caption("Ultimate Plane Game Deluxe")
 
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -71,6 +71,12 @@ plane_speed_upgrade = 0
 weapon_power_upgrade = 0
 special_ability = None
 ranking = "Novice"
+selected_plane = "Default"
+planes = {
+    "Default": {"speed": VEL, "health": MAX_HEALTH, "weapon": "Normal"},
+    "Speedster": {"speed": VEL + 2, "health": MAX_HEALTH - 1, "weapon": "Laser"},
+    "Tank": {"speed": VEL - 1, "health": MAX_HEALTH + 2, "weapon": "Spread Shot"}
+}
 
 def draw_text(text, font, color, x, y):
     render = font.render(text, True, color)
@@ -99,6 +105,7 @@ def draw_window():
     draw_text(f"Coins: {coins}", font, WHITE, WIDTH // 2 - 50, 50)
     draw_text(f"Gems: {gems}", font, WHITE, WIDTH // 2 - 50, 90)
     draw_text(f"Rank: {ranking}", font, WHITE, WIDTH // 2 - 50, 130)
+    draw_text(f"Plane: {selected_plane}", font, WHITE, WIDTH // 2 - 50, 170)
 
     pygame.display.update()
 
@@ -163,7 +170,7 @@ def handle_powerups():
             powerups.remove(powerup)
 
 def handle_movement(keys):
-    speed = VEL + plane_speed_upgrade
+    speed = planes[selected_plane]["speed"]
     if keys[pygame.K_LEFT] and plane.x - speed > 0:
         plane.x -= speed
     if keys[pygame.K_RIGHT] and plane.x + speed + PLANE_WIDTH < WIDTH:
@@ -178,15 +185,18 @@ def game_over():
     draw_text(f"Game Over! Final Score: {score}", title_font, RED, WIDTH // 2 - 250, HEIGHT // 2 - 50)
     pygame.display.update()
     pygame.time.delay(3000)
-    game_active = False
     save_game()
+    game_active = False
 
 def boss_fight():
     global boss, mini_boss
-    if boss is None and score >= level * 20:
-        boss = pygame.Rect(WIDTH // 2 - ENEMY_WIDTH, -ENEMY_HEIGHT * 2, ENEMY_WIDTH * 2, ENEMY_HEIGHT * 2)
-    if mini_boss is None and score >= level * 10 and score < level * 20:
-        mini_boss = pygame.Rect(WIDTH // 2 - ENEMY_WIDTH // 2, -ENEMY_HEIGHT, ENEMY_WIDTH, ENEMY_HEIGHT)
+    if level % 10 == 0:
+        boss = pygame.Rect(WIDTH // 2 - ENEMY_WIDTH // 2, -ENEMY_HEIGHT * 2, ENEMY_WIDTH * 2, ENEMY_HEIGHT * 2)
+    elif level % 5 == 0 and not boss:
+        mini_boss = pygame.Rect(WIDTH // 2 - ENEMY_WIDTH // 2, -ENEMY_HEIGHT, ENEMY_WIDTH * 1.5, ENEMY_HEIGHT * 1.5)
+
+def handle_boss():
+    global health, boss, mini_boss
     if boss:
         boss.y += BOSS_VEL
         if boss.y >= HEIGHT:
