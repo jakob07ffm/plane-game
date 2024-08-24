@@ -57,3 +57,4 @@ Welcome to the Ultimate Plane Game Deluxe! Fly through levels, defeat enemies, a
 2. Run the game script with `python plane_game.py`.
 
 Enjoy your flight!
+![](plane_screenshot.JPG)
